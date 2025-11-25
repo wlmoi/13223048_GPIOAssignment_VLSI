@@ -20,24 +20,51 @@ function Exit-WithMessage($msg, $code=1) {
     exit $code
 }
 
-# Check python availability
-$py = Get-Command python -ErrorAction SilentlyContinue
-if (-not $py) {
-    Exit-WithMessage "Python was not found in PATH. Please install Python 3 and retry."
+function Choose-PythonExecutable {
+    # Allow overriding via environment variable
+    if ($env:MINICONDA_PYTHON) {
+        if (Test-Path $env:MINICONDA_PYTHON) { return $env:MINICONDA_PYTHON }
+    }
+
+    # Common user install locations
+    $userProfile = [Environment]::GetFolderPath('UserProfile')
+    $candidates = @(
+        "$userProfile\Miniconda3\python.exe",
+        "$userProfile\Anaconda3\python.exe",
+        "$userProfile\AppData\Local\Programs\Python\Python39\python.exe",
+        "$userProfile\AppData\Local\Programs\Python\Python310\python.exe"
+    )
+
+    foreach ($c in $candidates) {
+        if (Test-Path $c) { return $c }
+    }
+
+    # Fall back to PATH 'python'
+    $pyCmd = Get-Command python -ErrorAction SilentlyContinue
+    if ($pyCmd) { return $pyCmd.Path }
+
+    return $null
 }
 
-Write-Host "Python found: $($py.Path)"
+$pythonExe = Choose-PythonExecutable
+if (-not $pythonExe) {
+    Exit-WithMessage "No Python interpreter found. Install Python or set environment variable MINICONDA_PYTHON to your python.exe path."
+}
+
+Write-Host "Using Python executable: $pythonExe"
 
 # Install pytest for current user
-Write-Host "Installing pytest for current user (if missing)..."
-& python -m pip install --user pytest | Out-Null
+Write-Host "Ensuring pip is available and installing pytest for current user (if missing)..."
+& "$pythonExe" -m ensurepip --upgrade | Out-Null
+& "$pythonExe" -m pip install --upgrade pip setuptools wheel | Out-Null
+& "$pythonExe" -m pip install --user pytest | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    Exit-WithMessage "Failed to install pytest. Please run: python -m pip install --user pytest"
+    Exit-WithMessage "Failed to install pytest. Please run: `& $pythonExe -m pip install --user pytest`"
 }
 
 Write-Host "Running pytest (simulate test)..."
 pushd $PSScriptRoot
-& pytest -q tests/test_gpio_test.py
+& "$pythonExe" -m pytest -q tests/test_gpio_test.py
 $rc = $LASTEXITCODE
 popd
 

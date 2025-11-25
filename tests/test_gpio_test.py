@@ -1,8 +1,10 @@
-"""
-Unit test for `gpio_test.py` using the simulate mode.
+#Unit test for `gpio_test.py` using the simulate mode.
 
-This test doesn't require PYNQ and can be run on the host.
-"""
+# This test doesn't require PYNQ and can be run on the host.
+# Nama : William Anthony
+# NIM  : 13223048
+# EL4013
+#
 import sys
 import os
 import importlib.util

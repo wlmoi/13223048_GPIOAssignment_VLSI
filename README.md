@@ -24,8 +24,6 @@ Notes:
 - The example code uses PYNQ APIs (pynq.Overlay and pynq.lib). Run it on the PYNQ board (not on your host PC) because it needs access to the bitstream and device registers.
 - When powering off the board, use `sudo shutdown -h now` to avoid MicroSD corruption.
 
----
-Created by GitHub Copilot (assistant).
 
 ## How to run (concise)
 
@@ -73,6 +71,3 @@ python3 /home/xilinx/scripts/gpio_test.py --bit /home/xilinx/design_1.bit --ip-h
 
 - If `python` is not found on Windows, install Python 3 from python.org and enable "Add Python to PATH" during installation or enable the App Execution Alias in Settings.
 - If the notebook fails to import `pynq` on the board, verify you are using the correct PYNQ image and that the overlay bitstream matches the HWH.
-
----
-If you'd like, I will now commit the current files to git with a clear message (I will not push). Say "commit" and I'll create the local commit for you.
